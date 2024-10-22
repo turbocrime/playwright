@@ -31,9 +31,9 @@ it('should pass firefox user preferences', async ({ browserType, mode }) => {
   await browser.close();
 });
 
-it('should pass firefox user preferences in persistent', async ({ mode, launchPersistent }) => {
+it('should pass firefox user preferences in persistent', async ({ mode, createPersistent }) => {
   it.skip(mode.startsWith('service'));
-  const { page } = await launchPersistent({
+  const { page } = await createPersistent({
     firefoxUserPrefs: {
       'network.proxy.type': 1,
       'network.proxy.http': '127.0.0.1',

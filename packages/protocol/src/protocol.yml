@@ -904,14 +904,15 @@ BrowserType:
       returns:
         browser: Browser
 
-    launchPersistentContext:
+    launchPersistent:
       parameters:
         $mixin1: LaunchOptions
         $mixin2: ContextOptions
         userDataDir: string
         slowMo: number?
       returns:
-        context: BrowserContext
+        browser: Browser
+        defaultContext: BrowserContext?
 
     connectOverCDP:
       parameters:

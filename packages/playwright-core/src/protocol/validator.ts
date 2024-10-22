@@ -514,7 +514,7 @@ scheme.BrowserTypeLaunchParams = tObject({
 scheme.BrowserTypeLaunchResult = tObject({
   browser: tChannel(['Browser']),
 });
-scheme.BrowserTypeLaunchPersistentContextParams = tObject({
+scheme.BrowserTypeLaunchPersistentParams = tObject({
   channel: tOptional(tString),
   executablePath: tOptional(tString),
   args: tOptional(tArray(tString)),
@@ -594,8 +594,9 @@ scheme.BrowserTypeLaunchPersistentContextParams = tObject({
   userDataDir: tString,
   slowMo: tOptional(tNumber),
 });
-scheme.BrowserTypeLaunchPersistentContextResult = tObject({
-  context: tChannel(['BrowserContext']),
+scheme.BrowserTypeLaunchPersistentResult = tObject({
+  browser: tChannel(['Browser']),
+  defaultContext: tOptional(tChannel(['BrowserContext'])),
 });
 scheme.BrowserTypeConnectOverCDPParams = tObject({
   endpointURL: tString,

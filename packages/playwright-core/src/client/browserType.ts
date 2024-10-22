@@ -66,7 +66,7 @@ export class BrowserType extends ChannelOwner<channels.BrowserTypeChannel> imple
   }
 
   async launch(options: LaunchOptions = {}): Promise<Browser> {
-    assert(!(options as any).userDataDir, 'userDataDir option is not supported in `browserType.launch`. Use `browserType.launchPersistentContext` instead');
+    assert(!(options as any).userDataDir, 'userDataDir option is not supported in `browserType.launch`. Use `browserType.launchPersistent` instead');
     assert(!(options as any).port, 'Cannot specify a port without launching as a server.');
 
     const logger = options.logger || this._defaultLaunchOptions?.logger;
@@ -91,12 +91,12 @@ export class BrowserType extends ChannelOwner<channels.BrowserTypeChannel> imple
     return await this._serverLauncher.launchServer(options);
   }
 
-  async launchPersistentContext(userDataDir: string, options: LaunchPersistentContextOptions = {}): Promise<BrowserContext> {
+  async launchPersistent(userDataDir: string, options: LaunchPersistentContextOptions = {}): Promise<Browser> {
     const logger = options.logger || this._defaultLaunchOptions?.logger;
     assert(!(options as any).port, 'Cannot specify a port without launching as a server.');
     options = { ...this._defaultLaunchOptions, ...this._defaultContextOptions, ...options };
     const contextParams = await prepareBrowserContextParams(options);
-    const persistentParams: channels.BrowserTypeLaunchPersistentContextParams = {
+    const persistentParams: channels.BrowserTypeLaunchPersistentParams = {
       ...contextParams,
       ignoreDefaultArgs: Array.isArray(options.ignoreDefaultArgs) ? options.ignoreDefaultArgs : undefined,
       ignoreAllDefaultArgs: !!options.ignoreDefaultArgs && !Array.isArray(options.ignoreDefaultArgs),
@@ -105,10 +105,14 @@ export class BrowserType extends ChannelOwner<channels.BrowserTypeChannel> imple
       userDataDir,
     };
     return await this._wrapApiCall(async () => {
-      const result = await this._channel.launchPersistentContext(persistentParams);
-      const context = BrowserContext.from(result.context);
-      await this._didCreateContext(context, contextParams, options, logger);
-      return context;
+      const result = await this._channel.launchPersistent(persistentParams);
+      const browser = Browser.from(result.browser);
+      this._didLaunchBrowser(browser, options, logger);
+      if (result.defaultContext) {
+        browser._defaultContext ??= BrowserContext.from(result.defaultContext);
+        await this._didCreateContext(browser._defaultContext, contextParams, options, logger);
+      }
+      return browser;
     });
   }
 
@@ -221,8 +225,10 @@ export class BrowserType extends ChannelOwner<channels.BrowserTypeChannel> imple
     });
     const browser = Browser.from(result.browser);
     this._didLaunchBrowser(browser, {}, params.logger);
-    if (result.defaultContext)
-      await this._didCreateContext(BrowserContext.from(result.defaultContext), {}, {}, params.logger);
+    if (result.defaultContext) {
+      browser._defaultContext = BrowserContext.from(result.defaultContext);
+      await this._didCreateContext(browser._defaultContext, {}, {}, params.logger);
+    }
     return browser;
   }
 

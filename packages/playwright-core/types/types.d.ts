@@ -9621,6 +9621,15 @@ export interface Browser {
   contexts(): Array<BrowserContext>;
 
   /**
+   * Returns the default browser context, if this browser is persistent (launched with
+   * [browserType.launchPersistent(userDataDir[, options])](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent)).
+   * In a non-persistent browser (launched with
+   * [browserType.launch([options])](https://playwright.dev/docs/api/class-browsertype#browser-type-launch)), this
+   * returns `null`.
+   */
+  defaultContext(): BrowserContext|null;
+
+  /**
    * Indicates that the browser is connected.
    */
   isConnected(): boolean;
@@ -14659,11 +14668,12 @@ export interface BrowserType<Unused = {}> {
   launch(options?: LaunchOptions): Promise<Browser>;
 
   /**
-   * Returns the persistent browser context instance.
+   * Returns a persistent browser instance.
    *
-   * Launches browser that uses persistent storage located at
-   * [`userDataDir`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-user-data-dir)
-   * and returns the only context. Closing this context will automatically close the browser.
+   * Uses persistent storage located at
+   * [`userDataDir`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-user-data-dir).
+   *
+   * Closing the persistent browser's default context will close the browser.
    * @param userDataDir Path to a User Data Directory, which stores browser session data like cookies and local storage. More details for
    * [Chromium](https://chromium.googlesource.com/chromium/src/+/master/docs/user_data_dir.md#introduction) and
    * [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options#User_Profile). Note that Chromium's
@@ -14671,7 +14681,7 @@ export interface BrowserType<Unused = {}> {
    * string to use a temporary directory instead.
    * @param options
    */
-  launchPersistentContext(userDataDir: string, options?: {
+  launchPersistent(userDataDir: string, options?: {
     /**
      * Whether to automatically download all the attachments. Defaults to `true` where all the downloads are accepted.
      */
@@ -14792,7 +14802,7 @@ export interface BrowserType<Unused = {}> {
 
     /**
      * **Chromium-only** Whether to auto-open a Developer Tools panel for each tab. If this option is `true`, the
-     * [`headless`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-headless)
+     * [`headless`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-headless)
      * option will be set `false`.
      * @deprecated Use [debugging tools](https://playwright.dev/docs/debug) instead.
      */
@@ -14812,7 +14822,7 @@ export interface BrowserType<Unused = {}> {
 
     /**
      * Path to a browser executable to run instead of the bundled one. If
-     * [`executablePath`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-executable-path)
+     * [`executablePath`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-executable-path)
      * is a relative path, then it is resolved relative to the current working directory. Note that Playwright only works
      * with the bundled Chromium, Firefox or WebKit, use at your own risk.
      */
@@ -14909,9 +14919,8 @@ export interface BrowserType<Unused = {}> {
 
     /**
      * If `true`, Playwright does not pass its own configurations args and only uses the ones from
-     * [`args`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-args). If
-     * an array is given, then filters out the given default arguments. Dangerous option; use with care. Defaults to
-     * `false`.
+     * [`args`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-args). If an array
+     * is given, then filters out the given default arguments. Dangerous option; use with care. Defaults to `false`.
      */
     ignoreDefaultArgs?: boolean|Array<string>;
 
@@ -15065,8 +15074,8 @@ export interface BrowserType<Unused = {}> {
 
     /**
      * Emulates consistent window screen size available inside web page via `window.screen`. Is only used when the
-     * [`viewport`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-viewport)
-     * is set.
+     * [`viewport`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-viewport) is
+     * set.
      */
     screen?: {
       /**
@@ -15127,7 +15136,7 @@ export interface BrowserType<Unused = {}> {
 
     /**
      * @deprecated Use
-     * [`recordVideo`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-record-video)
+     * [`recordVideo`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-record-video)
      * instead.
      */
     videoSize?: {
@@ -15144,7 +15153,7 @@ export interface BrowserType<Unused = {}> {
 
     /**
      * @deprecated Use
-     * [`recordVideo`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-record-video)
+     * [`recordVideo`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-option-record-video)
      * instead.
      */
     videosPath?: string;
@@ -15168,7 +15177,7 @@ export interface BrowserType<Unused = {}> {
        */
       height: number;
     };
-  }): Promise<BrowserContext>;
+  }): Promise<Browser>;
 
   /**
    * Returns the browser app instance. You can connect to it via

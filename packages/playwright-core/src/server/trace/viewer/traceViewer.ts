@@ -47,7 +47,7 @@ export type TraceViewerRedirectOptions = {
 
 export type TraceViewerAppOptions = {
   headless?: boolean;
-  persistentContextOptions?: Parameters<BrowserType['launchPersistentContext']>[2];
+  persistentContextOptions?: Parameters<BrowserType['launchPersistent']>[2];
 };
 
 function validateTraceUrls(traceUrls: string[]) {

@@ -155,6 +155,11 @@ export type LaunchOptions = channels.BrowserTypeLaunchOptions & {
   proxyOverride?: ProxySettings,
 };
 
+export type LaunchPersistentOptions = channels.BrowserTypeLaunchPersistentOptions & {
+  useWebSocket?: boolean,
+  internalIgnoreHTTPSErrors?: boolean,
+};
+
 export type BrowserContextOptions = channels.BrowserNewContextOptions & {
   proxyOverride?: ProxySettings;
   internalIgnoreHTTPSErrors?: boolean;

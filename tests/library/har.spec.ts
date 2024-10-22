@@ -79,9 +79,9 @@ it('should have pages', async ({ contextFactory, server }, testInfo) => {
   expect(pageEntry.pageTimings.onLoad).toBeGreaterThan(0);
 });
 
-it('should have pages in persistent context', async ({ launchPersistent, browserName }, testInfo) => {
+it('should have pages in persistent context', async ({ createPersistent, browserName }, testInfo) => {
   const harPath = testInfo.outputPath('test.har');
-  const { context, page } = await launchPersistent({ recordHar: { path: harPath } });
+  const { context, page } = await createPersistent({ recordHar: { path: harPath } });
   await page.goto('data:text/html,<title>Hello</title>');
   // For data: load comes before domcontentloaded...
   await page.waitForLoadState('domcontentloaded');

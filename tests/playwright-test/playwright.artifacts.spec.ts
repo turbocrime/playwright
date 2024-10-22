@@ -103,7 +103,7 @@ const testFiles = {
     const testPersistent = test.extend({
       page: async ({ playwright, browserName }, use) => {
         const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'user-data-dir-'));
-        const context = await playwright[browserName].launchPersistentContext(dir);
+        const context = (await playwright[browserName].launchPersistent(dir)).defaultContext()!;
         await use(context.pages()[0]);
         await context.close();
         fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10 });

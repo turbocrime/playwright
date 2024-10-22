@@ -83,7 +83,7 @@ export class CRBrowser extends Browser {
         // This can be removed after https://chromium-review.googlesource.com/c/chromium/src/+/2885888 lands in stable.
         await session.send('Target.getTargetInfo');
       }),
-      (browser._defaultContext as CRBrowserContext)._initialize(),
+      browser._defaultContext._initialize(),
     ]);
     await browser._waitForAllPagesToBeInitialized();
     return browser;
@@ -154,12 +154,7 @@ export class CRBrowser extends Browser {
       return;
     const session = this._session.createChildSession(sessionId);
     assert(targetInfo.browserContextId, 'targetInfo: ' + JSON.stringify(targetInfo, null, 2));
-    let context = this._contexts.get(targetInfo.browserContextId) || null;
-    if (!context) {
-      // TODO: auto attach only to pages from our contexts.
-      // assert(this._defaultContext);
-      context = this._defaultContext as CRBrowserContext;
-    }
+    const context = (this._contexts.get(targetInfo.browserContextId) ?? this._defaultContext) as CRBrowserContext | null;
 
     if (targetInfo.type === 'other' && targetInfo.url.startsWith('devtools://devtools') && this._devtools) {
       this._devtools.install(session);

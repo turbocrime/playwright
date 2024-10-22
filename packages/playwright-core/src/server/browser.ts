@@ -160,8 +160,7 @@ export abstract class Browser extends SdkObject {
   _didClose() {
     for (const context of this.contexts())
       context._browserClosed();
-    if (this._defaultContext)
-      this._defaultContext._browserClosed();
+    this._defaultContext?._browserClosed();
     this.emit(Browser.Events.Disconnected);
     this.instrumentation.onBrowserClose(this);
   }

@@ -881,7 +881,7 @@ export interface BrowserTypeEventTarget {
 export interface BrowserTypeChannel extends BrowserTypeEventTarget, Channel {
   _type_BrowserType: boolean;
   launch(params: BrowserTypeLaunchParams, metadata?: CallMetadata): Promise<BrowserTypeLaunchResult>;
-  launchPersistentContext(params: BrowserTypeLaunchPersistentContextParams, metadata?: CallMetadata): Promise<BrowserTypeLaunchPersistentContextResult>;
+  launchPersistent(params: BrowserTypeLaunchPersistentParams, metadata?: CallMetadata): Promise<BrowserTypeLaunchPersistentResult>;
   connectOverCDP(params: BrowserTypeConnectOverCDPParams, metadata?: CallMetadata): Promise<BrowserTypeConnectOverCDPResult>;
 }
 export type BrowserTypeLaunchParams = {
@@ -937,7 +937,7 @@ export type BrowserTypeLaunchOptions = {
 export type BrowserTypeLaunchResult = {
   browser: BrowserChannel,
 };
-export type BrowserTypeLaunchPersistentContextParams = {
+export type BrowserTypeLaunchPersistentParams = {
   channel?: string,
   executablePath?: string,
   args?: string[],
@@ -1017,7 +1017,7 @@ export type BrowserTypeLaunchPersistentContextParams = {
   userDataDir: string,
   slowMo?: number,
 };
-export type BrowserTypeLaunchPersistentContextOptions = {
+export type BrowserTypeLaunchPersistentOptions = {
   channel?: string,
   executablePath?: string,
   args?: string[],
@@ -1096,8 +1096,9 @@ export type BrowserTypeLaunchPersistentContextOptions = {
   serviceWorkers?: 'allow' | 'block',
   slowMo?: number,
 };
-export type BrowserTypeLaunchPersistentContextResult = {
-  context: BrowserContextChannel,
+export type BrowserTypeLaunchPersistentResult = {
+  browser: BrowserChannel,
+  defaultContext?: BrowserContextChannel,
 };
 export type BrowserTypeConnectOverCDPParams = {
   endpointURL: string,

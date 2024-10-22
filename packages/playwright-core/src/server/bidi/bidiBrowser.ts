@@ -97,7 +97,7 @@ export class BidiBrowser extends Browser {
 
     if (options.persistent) {
       browser._defaultContext = new BidiBrowserContext(browser, undefined, options.persistent);
-      await (browser._defaultContext as BidiBrowserContext)._initialize();
+      await browser._defaultContext._initialize();
       // Create default page as we cannot get access to the existing one.
       const pageDelegate = await browser._defaultContext.newPageDelegate();
       await pageDelegate.pageOrError();
@@ -156,9 +156,7 @@ export class BidiBrowser extends Browser {
       }
       return;
     }
-    let context = this._contexts.get(event.userContext);
-    if (!context)
-      context = this._defaultContext as BidiBrowserContext;
+    const context = this._contexts.get(event.userContext) ?? this._defaultContext as BidiBrowserContext;
     if (!context)
       return;
     const session = this._connection.createMainFrameBrowsingContextSession(event.context);

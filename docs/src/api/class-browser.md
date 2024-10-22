@@ -152,6 +152,14 @@ var context = await browser.NewContextAsync();
 System.Console.WriteLine(browser.Contexts.Count); // prints "1"
 ```
 
+## method: Browser.defaultContext
+* since: v1.49
+- returns: <[BrowserContext | null]>>
+
+Returns the default browser context, if this browser is persistent (launched
+with [`method: BrowserType.launchPersistent`]). In a non-persistent browser
+(launched with [`method: BrowserType.launch`]), this returns `null`.
+
 ## method: Browser.isConnected
 * since: v1.8
 - returns: <[boolean]>

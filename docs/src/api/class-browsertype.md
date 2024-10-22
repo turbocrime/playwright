@@ -303,16 +303,17 @@ describes some differences for Linux users.
 ### option: BrowserType.launch.ignoreAllDefaultArgs = %%-csharp-java-browser-option-ignorealldefaultargs-%%
 * since: v1.9
 
-## async method: BrowserType.launchPersistentContext
-* since: v1.8
-- returns: <[BrowserContext]>
+## async method: BrowserType.launchPersistent
+* since: v1.49
+- returns: <[Browser]>
 
-Returns the persistent browser context instance.
+Returns a persistent browser instance.
 
-Launches browser that uses persistent storage located at [`param: userDataDir`] and returns the only context. Closing
-this context will automatically close the browser.
+Uses persistent storage located at [`param: userDataDir`].
 
-### param: BrowserType.launchPersistentContext.userDataDir
+Closing the persistent browser's default context will close the browser.
+
+### param: BrowserType.launchPersistent.userDataDir
 * since: v1.8
 - `userDataDir` <[path]>
 
@@ -322,28 +323,28 @@ Path to a User Data Directory, which stores browser session data like cookies an
 Note that Chromium's user data directory is the **parent** directory of the "Profile Path" seen at `chrome://version`. Pass an empty string to
 use a temporary directory instead.
 
-### option: BrowserType.launchPersistentContext.-inline- = %%-shared-browser-options-list-v1.8-%%
+### option: BrowserType.launchPersistent.-inline- = %%-shared-browser-options-list-v1.8-%%
 * since: v1.8
 
-### option: BrowserType.launchPersistentContext.slowMo = %%-browser-option-slowmo-%%
+### option: BrowserType.launchPersistent.slowMo = %%-browser-option-slowmo-%%
 * since: v1.8
 
-### option: BrowserType.launchPersistentContext.ignoreDefaultArgs = %%-csharp-java-browser-option-ignoredefaultargs-%%
+### option: BrowserType.launchPersistent.ignoreDefaultArgs = %%-csharp-java-browser-option-ignoredefaultargs-%%
 * since: v1.8
 
-### option: BrowserType.launchPersistentContext.ignoreAllDefaultArgs = %%-csharp-java-browser-option-ignorealldefaultargs-%%
+### option: BrowserType.launchPersistent.ignoreAllDefaultArgs = %%-csharp-java-browser-option-ignorealldefaultargs-%%
 * since: v1.9
 
-### option: BrowserType.launchPersistentContext.-inline- = %%-shared-context-params-list-v1.8-%%
+### option: BrowserType.launchPersistent.-inline- = %%-shared-context-params-list-v1.8-%%
 * since: v1.8
 
-### option: BrowserType.launchPersistentContext.firefoxUserPrefs = %%-js-python-browser-option-firefoxuserprefs-%%
+### option: BrowserType.launchPersistent.firefoxUserPrefs = %%-js-python-browser-option-firefoxuserprefs-%%
 * since: v1.40
 
-### option: BrowserType.launchPersistentContext.firefoxUserPrefs2 = %%-csharp-java-browser-option-firefoxuserprefs-%%
+### option: BrowserType.launchPersistent.firefoxUserPrefs2 = %%-csharp-java-browser-option-firefoxuserprefs-%%
 * since: v1.40
 
-### option: BrowserType.launchPersistentContext.clientCertificates = %%-context-option-clientCertificates-%%
+### option: BrowserType.launchPersistent.clientCertificates = %%-context-option-clientCertificates-%%
 * since: 1.46
 
 ## async method: BrowserType.launchServer

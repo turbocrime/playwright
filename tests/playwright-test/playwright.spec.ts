@@ -220,7 +220,7 @@ test('should respect context options in various contexts', async ({ runInlineTes
 
       test('persistent context', async ({ playwright, browserName }) => {
         const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'user-data-dir-'));
-        const context = await playwright[browserName].launchPersistentContext(dir);
+        const context = (await playwright[browserName].launchPersistent(dir)).defaultContext()!;
         const page = context.pages()[0];
 
         expect(page.viewportSize()).toEqual({ width: 500, height: 500 });
@@ -245,7 +245,7 @@ test('should respect context options in various contexts', async ({ runInlineTes
   expect(result.passed).toBe(5);
 });
 
-test('should respect headless in launchPersistent', async ({ runInlineTest }) => {
+test('should respect headless in createPersistent', async ({ runInlineTest }) => {
   const result = await runInlineTest({
     'playwright.config.ts': `
       module.exports = { use: { headless: false } };
@@ -259,7 +259,7 @@ test('should respect headless in launchPersistent', async ({ runInlineTest }) =>
 
       test('persistent context', async ({ playwright, browserName }) => {
         const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'user-data-dir-'));
-        const context = await playwright[browserName].launchPersistentContext(dir);
+        const context = (await playwright[browserName].launchPersistent(dir)).defaultContext()!;
         const page = context.pages()[0];
         expect(await page.evaluate(() => navigator.userAgent)).not.toContain('Headless');
         await context.close();

@@ -19,50 +19,50 @@ import { playwrightTest as it, expect } from '../config/browserTest';
 import fs from 'fs';
 import path from 'path';
 
-it('should support hasTouch option', async ({ server, launchPersistent }) => {
-  const { page } = await launchPersistent({ hasTouch: true });
+it('should support hasTouch option', async ({ server, createPersistent }) => {
+  const { page } = await createPersistent({ hasTouch: true });
   await page.goto(server.PREFIX + '/mobile.html');
   expect(await page.evaluate(() => 'ontouchstart' in window)).toBe(true);
 });
 
-it('should work in persistent context', async ({ server, launchPersistent, browserName }) => {
+it('should work in persistent context', async ({ server, createPersistent, browserName }) => {
   it.skip(browserName === 'firefox', 'Firefox does not support mobile');
 
-  const { page } = await launchPersistent({ viewport: { width: 320, height: 480 }, isMobile: true });
+  const { page } = await createPersistent({ viewport: { width: 320, height: 480 }, isMobile: true });
   await page.goto(server.PREFIX + '/empty.html');
   expect(await page.evaluate(() => window.innerWidth)).toBe(980);
 });
 
-it('should support colorScheme option', async ({ launchPersistent }) => {
-  const { page } = await launchPersistent({ colorScheme: 'dark' });
+it('should support colorScheme option', async ({ createPersistent }) => {
+  const { page } = await createPersistent({ colorScheme: 'dark' });
   expect(await page.evaluate(() => matchMedia('(prefers-color-scheme: light)').matches)).toBe(false);
   expect(await page.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches)).toBe(true);
 });
 
-it('should support reducedMotion option', async ({ launchPersistent }) => {
-  const { page } = await launchPersistent({ reducedMotion: 'reduce' });
+it('should support reducedMotion option', async ({ createPersistent }) => {
+  const { page } = await createPersistent({ reducedMotion: 'reduce' });
   expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
   expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: no-preference)').matches)).toBe(false);
 });
 
-it('should support forcedColors option', async ({ launchPersistent, browserName }) => {
-  const { page } = await launchPersistent({ forcedColors: 'active' });
+it('should support forcedColors option', async ({ createPersistent, browserName }) => {
+  const { page } = await createPersistent({ forcedColors: 'active' });
   expect(await page.evaluate(() => matchMedia('(forced-colors: active)').matches)).toBe(true);
   expect(await page.evaluate(() => matchMedia('(forced-colors: none)').matches)).toBe(false);
 });
 
-it('should support timezoneId option', async ({ launchPersistent, browserName }) => {
-  const { page } = await launchPersistent({ locale: 'en-US', timezoneId: 'America/Jamaica' });
+it('should support timezoneId option', async ({ createPersistent, browserName }) => {
+  const { page } = await createPersistent({ locale: 'en-US', timezoneId: 'America/Jamaica' });
   expect(await page.evaluate(() => new Date(1479579154987).toString())).toBe('Sat Nov 19 2016 13:12:34 GMT-0500 (Eastern Standard Time)');
 });
 
-it('should support locale option', async ({ launchPersistent }) => {
-  const { page } = await launchPersistent({ locale: 'fr-FR' });
+it('should support locale option', async ({ createPersistent }) => {
+  const { page } = await createPersistent({ locale: 'fr-FR' });
   expect(await page.evaluate(() => navigator.language)).toBe('fr-FR');
 });
 
-it('should support geolocation and permissions options', async ({ server, launchPersistent }) => {
-  const { page } = await launchPersistent({ geolocation: { longitude: 10, latitude: 10 }, permissions: ['geolocation'] });
+it('should support geolocation and permissions options', async ({ server, createPersistent }) => {
+  const { page } = await createPersistent({ geolocation: { longitude: 10, latitude: 10 }, permissions: ['geolocation'] });
   await page.goto(server.EMPTY_PAGE);
   const geolocation = await page.evaluate(() => new Promise(resolve => navigator.geolocation.getCurrentPosition(position => {
     resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude });
@@ -70,16 +70,16 @@ it('should support geolocation and permissions options', async ({ server, launch
   expect(geolocation).toEqual({ latitude: 10, longitude: 10 });
 });
 
-it('should support ignoreHTTPSErrors option', async ({ httpsServer, launchPersistent }) => {
-  const { page } = await launchPersistent({ ignoreHTTPSErrors: true });
+it('should support ignoreHTTPSErrors option', async ({ httpsServer, createPersistent }) => {
+  const { page } = await createPersistent({ ignoreHTTPSErrors: true });
   let error = null;
   const response = await page.goto(httpsServer.EMPTY_PAGE).catch(e => error = e);
   expect(error).toBe(null);
   expect(response.ok()).toBe(true);
 });
 
-it('should support extraHTTPHeaders option', async ({ server, launchPersistent }) => {
-  const { page } = await launchPersistent({ extraHTTPHeaders: { foo: 'bar' } });
+it('should support extraHTTPHeaders option', async ({ server, createPersistent }) => {
+  const { page } = await createPersistent({ extraHTTPHeaders: { foo: 'bar' } });
   const [request] = await Promise.all([
     server.waitForRequest('/empty.html'),
     page.goto(server.EMPTY_PAGE),
@@ -89,7 +89,7 @@ it('should support extraHTTPHeaders option', async ({ server, launchPersistent }
 
 it('should accept userDataDir', async ({ createUserDataDir, browserType }) => {
   const userDataDir = await createUserDataDir();
-  const context = await browserType.launchPersistentContext(userDataDir);
+  const context = (await browserType.launchPersistent(userDataDir)).defaultContext()!;
   expect(fs.readdirSync(userDataDir).length).toBeGreaterThan(0);
   await context.close();
   expect(fs.readdirSync(userDataDir).length).toBeGreaterThan(0);
@@ -99,20 +99,20 @@ it('should restore state from userDataDir', async ({ browserType, server, create
   it.slow();
 
   const userDataDir = await createUserDataDir();
-  const browserContext = await browserType.launchPersistentContext(userDataDir);
+  const browserContext = (await browserType.launchPersistent(userDataDir)).defaultContext()!;
   const page = await browserContext.newPage();
   await page.goto(server.EMPTY_PAGE);
   await page.evaluate(() => localStorage.hey = 'hello');
   await browserContext.close();
 
-  const browserContext2 = await browserType.launchPersistentContext(userDataDir);
+  const browserContext2 = (await browserType.launchPersistent(userDataDir)).defaultContext()!;
   const page2 = await browserContext2.newPage();
   await page2.goto(server.EMPTY_PAGE);
   expect(await page2.evaluate(() => localStorage.hey)).toBe('hello');
   await browserContext2.close();
 
   const userDataDir2 = await createUserDataDir();
-  const browserContext3 = await browserType.launchPersistentContext(userDataDir2);
+  const browserContext3 = (await browserType.launchPersistent(userDataDir2)).defaultContext()!;
   const page3 = await browserContext3.newPage();
   await page3.goto(server.EMPTY_PAGE);
   expect(await page3.evaluate(() => localStorage.hey)).not.toBe('hello');
@@ -121,13 +121,13 @@ it('should restore state from userDataDir', async ({ browserType, server, create
 
 it('should create userDataDir if it does not exist', async ({ createUserDataDir, browserType }) => {
   const userDataDir = path.join(await createUserDataDir(), 'nonexisting');
-  const context = await browserType.launchPersistentContext(userDataDir);
+  const context = (await browserType.launchPersistent(userDataDir)).defaultContext()!;
   await context.close();
   expect(fs.readdirSync(userDataDir).length).toBeGreaterThan(0);
 });
 
-it('should have default URL when launching browser', async ({ launchPersistent }) => {
-  const { context } = await launchPersistent();
+it('should have default URL when launching browser', async ({ createPersistent }) => {
+  const { context } = await createPersistent();
   const urls = context.pages().map(page => page.url());
   expect(urls).toEqual(['about:blank']);
 });
@@ -136,7 +136,7 @@ it('should throw if page argument is passed', async ({ browserType, server, crea
   it.skip(browserName === 'firefox');
 
   const options = { args: [server.EMPTY_PAGE] };
-  const error = await browserType.launchPersistentContext(await createUserDataDir(), options).catch(e => e);
+  const error = await browserType.launchPersistent(await createUserDataDir(), options).catch(e => e);
   expect(error.message).toContain('can not specify page');
 });
 
@@ -149,7 +149,7 @@ it('should have passed URL when launching with ignoreDefaultArgs: true', async (
     args: browserName === 'firefox' ? [...args, '-new-tab', server.EMPTY_PAGE] : [...args, server.EMPTY_PAGE],
     ignoreDefaultArgs: true,
   };
-  const browserContext = await browserType.launchPersistentContext(userDataDir, options);
+  const browserContext = (await browserType.launchPersistent(userDataDir, options)).defaultContext()!;
   if (!browserContext.pages().length)
     await browserContext.waitForEvent('page');
   await browserContext.pages()[0].waitForLoadState();
@@ -162,8 +162,8 @@ it('should handle timeout', async ({ browserType, createUserDataDir, mode }) => 
   it.skip(mode !== 'default');
 
   const options: any = { timeout: 5000, __testHookBeforeCreateBrowser: () => new Promise(f => setTimeout(f, 6000)) };
-  const error = await browserType.launchPersistentContext(await createUserDataDir(), options).catch(e => e);
-  expect(error.message).toContain(`browserType.launchPersistentContext: Timeout 5000ms exceeded.`);
+  const error = await browserType.launchPersistent(await createUserDataDir(), options).catch(e => e);
+  expect(error.message).toContain(`browserType.launchPersistent: Timeout 5000ms exceeded.`);
 });
 
 it('should handle exception', async ({ browserType, createUserDataDir, mode }) => {
@@ -171,22 +171,22 @@ it('should handle exception', async ({ browserType, createUserDataDir, mode }) =
 
   const e = new Error('Dummy');
   const options: any = { __testHookBeforeCreateBrowser: () => { throw e; } };
-  const error = await browserType.launchPersistentContext(await createUserDataDir(), options).catch(e => e);
+  const error = await browserType.launchPersistent(await createUserDataDir(), options).catch(e => e);
   expect(error.message).toContain('Dummy');
 });
 
-it('should fire close event for a persistent context', async ({ launchPersistent }) => {
-  const { context } = await launchPersistent();
+it('should fire close event for a persistent context', async ({ createPersistent }) => {
+  const { context } = await createPersistent();
   let closed = false;
   context.on('close', () => closed = true);
   await context.close();
   expect(closed).toBe(true);
 });
 
-it('coverage should work', async ({ server, launchPersistent, browserName }) => {
+it('coverage should work', async ({ server, createPersistent, browserName }) => {
   it.skip(browserName !== 'chromium');
 
-  const { page } = await launchPersistent();
+  const { page } = await createPersistent();
   await page.coverage.startJSCoverage();
   await page.goto(server.PREFIX + '/jscoverage/simple.html', { waitUntil: 'load' });
   const coverage = await page.coverage.stopJSCoverage();
@@ -195,8 +195,8 @@ it('coverage should work', async ({ server, launchPersistent, browserName }) => 
   expect(coverage[0].functions.find(f => f.functionName === 'foo').ranges[0].count).toEqual(1);
 });
 
-it('should respect selectors', async ({ playwright, launchPersistent }) => {
-  const { page } = await launchPersistent();
+it('should respect selectors', async ({ playwright, createPersistent }) => {
+  const { page } = await createPersistent();
 
   const defaultContextCSS = () => ({
     query(root, selector) {
@@ -217,14 +217,14 @@ it('should connect to a browser with the default page', async ({ browserType, cr
   it.skip(mode !== 'default');
 
   const options: any = { __testHookOnConnectToBrowser: () => new Promise(f => setTimeout(f, 3000)) };
-  const context = await browserType.launchPersistentContext(await createUserDataDir(), options);
+  const context = (await browserType.launchPersistent(await createUserDataDir(), options)).defaultContext()!;
   expect(context.pages().length).toBe(1);
   await context.close();
 });
 
-it('should support har option', async ({ launchPersistent, asset }) => {
+it('should support har option', async ({ createPersistent, asset }) => {
   const path = asset('har-fulfill.har');
-  const { page } = await launchPersistent();
+  const { page } = await createPersistent();
   await page.routeFromHAR(path);
   await page.goto('http://no.playwright/');
   // HAR contains a redirect for the script that should be followed automatically.
@@ -233,10 +233,10 @@ it('should support har option', async ({ launchPersistent, asset }) => {
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 0, 0)');
 });
 
-it('user agent is up to date', async ({ launchPersistent, browser, mode }) => {
+it('user agent is up to date', async ({ createPersistent, browser, mode }) => {
   it.skip(mode !== 'default');
   const { userAgent } = await (browser as any)._channel.defaultUserAgentForTest();
-  const { context, page } = await launchPersistent();
+  const { context, page } = await createPersistent();
   expect(await page.evaluate(() => navigator.userAgent)).toBe(userAgent);
   await context.close();
 });

@@ -18,7 +18,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import type { PageTestFixtures, PageWorkerFixtures } from '../page/pageTestApi';
 import * as path from 'path';
-import type { BrowserContext, BrowserContextOptions, BrowserType, Page } from 'playwright-core';
+import type { Browser, BrowserContext, BrowserContextOptions, BrowserType, Page } from 'playwright-core';
 import { removeFolders } from '../../packages/playwright-core/lib/utils/fileUtils';
 import { baseTest } from './baseTest';
 import { type RemoteServerOptions, type PlaywrightServer, RunServer, RemoteServer } from './remoteServer';
@@ -46,7 +46,7 @@ interface StartRemoteServer {
 
 type BrowserTestTestFixtures = PageTestFixtures & {
   createUserDataDir: () => Promise<string>;
-  launchPersistent: (options?: Parameters<BrowserType['launchPersistentContext']>[1]) => Promise<{ context: BrowserContext, page: Page }>;
+  createPersistent: (options?: Parameters<BrowserType['launchPersistent']>[1]) => Promise<{ browser: Browser, context: BrowserContext, page: Page }>;
   startRemoteServer: StartRemoteServer;
   contextFactory: (options?: BrowserContextOptions) => Promise<BrowserContext>;
   pageWithHar(options?: { outputPath?: string, content?: 'embed' | 'attach' | 'omit', omitContent?: boolean }): Promise<{ context: BrowserContext, page: Page, getLog: () => Promise<Log>, getZip: () => Promise<Map<string, Buffer>> }>
@@ -122,17 +122,19 @@ const test = baseTest.extend<BrowserTestTestFixtures, BrowserTestWorkerFixtures>
     await removeFolders(dirs);
   },
 
-  launchPersistent: async ({ createUserDataDir, browserType }, run) => {
+  createPersistent: async ({ createUserDataDir, browserType }, run) => {
     let persistentContext: BrowserContext | undefined;
+    let persistentBrowser: Browser | undefined;
     await run(async options => {
       if (persistentContext)
         throw new Error('can only launch one persistent context');
       const userDataDir = await createUserDataDir();
-      persistentContext = await browserType.launchPersistentContext(userDataDir, { ...options });
+      persistentBrowser = await browserType.launchPersistent(userDataDir, { ...options });
+      persistentContext = persistentBrowser.defaultContext()!;
       const page = persistentContext.pages()[0];
-      return { context: persistentContext, page };
+      return { browser: persistentBrowser, context: persistentContext, page };
     });
-    if (persistentContext)
+    if (persistentContext && persistentBrowser.isConnected())
       await persistentContext.close();
   },
 

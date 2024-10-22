@@ -62,7 +62,7 @@ it('should return background pages', async ({ browserType, createUserDataDir, as
       `--load-extension=${extensionPath}`,
     ],
   };
-  const context = await browserType.launchPersistentContext(userDataDir, extensionOptions);
+  const context = (await browserType.launchPersistent(userDataDir, extensionOptions)).defaultContext()!;
   const backgroundPages = context.backgroundPages();
   const backgroundPage = backgroundPages.length
     ? backgroundPages[0]
@@ -88,7 +88,7 @@ it('should return background pages when recording video', async ({ browserType, 
       dir: testInfo.outputPath(''),
     },
   };
-  const context = await browserType.launchPersistentContext(userDataDir, extensionOptions);
+  const context = (await browserType.launchPersistent(userDataDir, extensionOptions)).defaultContext()!;
   const backgroundPages = context.backgroundPages();
   const backgroundPage = backgroundPages.length
     ? backgroundPages[0]
@@ -113,7 +113,7 @@ it('should support request/response events when using backgroundPage()', async (
       `--load-extension=${extensionPath}`,
     ],
   };
-  const context = await browserType.launchPersistentContext(userDataDir, extensionOptions);
+  const context = (await browserType.launchPersistent(userDataDir, extensionOptions)).defaultContext()!;
   const backgroundPages = context.backgroundPages();
   const backgroundPage = backgroundPages.length
     ? backgroundPages[0]
@@ -158,7 +158,7 @@ it('should report console messages from content script', {
       `--load-extension=${extensionPath}`,
     ],
   };
-  const context = await browserType.launchPersistentContext(userDataDir, extensionOptions);
+  const context = (await browserType.launchPersistent(userDataDir, extensionOptions)).defaultContext()!;
   const page = await context.newPage();
   const consolePromise = page.waitForEvent('console', e => e.text().includes('Test console log from a third-party execution context'));
   await page.goto(server.EMPTY_PAGE);

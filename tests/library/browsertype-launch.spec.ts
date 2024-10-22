@@ -34,13 +34,13 @@ it('should reject all promises when browser is closed', async ({ browserType }) 
 it('should throw if userDataDir option is passed', async ({ browserType }) => {
   let waitError: Error | undefined;
   await browserType.launch({ userDataDir: 'random-path' } as any).catch(e => waitError = e);
-  expect(waitError!.message).toContain('userDataDir option is not supported in `browserType.launch`. Use `browserType.launchPersistentContext` instead');
+  expect(waitError!.message).toContain('userDataDir option is not supported in `browserType.launch`. Use `browserType.launchPersistent` instead');
 });
 
 it('should throw if userDataDir is passed as an argument', async ({ browserType }) => {
   let waitError: Error | undefined;
   await browserType.launch({ args: ['--user-data-dir=random-path', '--profile=random-path'] } as any).catch(e => waitError = e);
-  expect(waitError!.message).toContain(`Pass userDataDir parameter to 'browserType.launchPersistentContext`);
+  expect(waitError!.message).toContain(`Pass userDataDir parameter to 'browserType.launchPersistent`);
 });
 
 it('should throw if port option is passed', async ({ browserType }) => {
@@ -49,7 +49,7 @@ it('should throw if port option is passed', async ({ browserType }) => {
 });
 
 it('should throw if port option is passed for persistent context', async ({ browserType }) => {
-  const error = await browserType.launchPersistentContext('foo', { port: 1234 } as any).catch(e => e);
+  const error = await browserType.launchPersistent('foo', { port: 1234 } as any).catch(e => e);
   expect(error!.message).toContain('Cannot specify a port without launching as a server.');
 });
 

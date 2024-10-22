@@ -778,15 +778,15 @@ test.describe('browser', () => {
   });
 
   test.describe('persistentContext', () => {
-    test('validate input', async ({ launchPersistent }) => {
+    test('validate input', async ({ createPersistent }) => {
       test.slow();
       for (const [contextOptions, expected] of kValidationSubTests)
-        await expect(launchPersistent(contextOptions)).rejects.toThrow(expected);
+        await expect(createPersistent(contextOptions)).rejects.toThrow(expected);
     });
 
-    test('should pass with matching certificates', async ({ launchPersistent, startCCServer, asset, browserName, isMac }) => {
+    test('should pass with matching certificates', async ({ createPersistent, startCCServer, asset, browserName, isMac }) => {
       const serverURL = await startCCServer({ useFakeLocalhost: browserName === 'webkit' && isMac });
-      const { page } = await launchPersistent({
+      const { page } = await createPersistent({
         ignoreHTTPSErrors: true,
         clientCertificates: [{
           origin: new URL(serverURL).origin,

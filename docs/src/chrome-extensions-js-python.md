@@ -17,13 +17,13 @@ const { chromium } = require('playwright');
 (async () => {
   const pathToExtension = require('path').join(__dirname, 'my-extension');
   const userDataDir = '/tmp/test-user-data-dir';
-  const browserContext = await chromium.launchPersistentContext(userDataDir, {
+  const browserContext = (await chromium.launchPersistent(userDataDir, {
     headless: false,
     args: [
       `--disable-extensions-except=${pathToExtension}`,
       `--load-extension=${pathToExtension}`
     ]
-  });
+  })).defaultContext()!;
   let [backgroundPage] = browserContext.backgroundPages();
   if (!backgroundPage)
     backgroundPage = await browserContext.waitForEvent('backgroundpage');
@@ -113,13 +113,13 @@ export const test = base.extend<{
 }>({
   context: async ({ }, use) => {
     const pathToExtension = path.join(__dirname, 'my-extension');
-    const context = await chromium.launchPersistentContext('', {
+    const context = await chromium.launchPersistent('', {
       headless: false,
       args: [
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`,
       ],
-    });
+    }).defaultContext()!;
     await use(context);
     await context.close();
   },
@@ -224,14 +224,14 @@ By default, Chrome's headless mode in Playwright does not support Chrome extensi
 // ...
 
 const pathToExtension = path.join(__dirname, 'my-extension');
-const context = await chromium.launchPersistentContext('', {
+const context = (await chromium.launchPersistent('', {
   headless: false,
   args: [
     `--headless=new`,
     `--disable-extensions-except=${pathToExtension}`,
     `--load-extension=${pathToExtension}`,
   ],
-});
+})).defaultContext()!;
 // ...
 ```
 

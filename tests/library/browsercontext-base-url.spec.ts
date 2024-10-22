@@ -34,11 +34,11 @@ it('should construct a new URL when a baseURL in browser.newPage is passed to pa
   await page.close();
 });
 
-it('should construct a new URL when a baseURL in browserType.launchPersistentContext is passed to page.goto', async function({ browserType, server, createUserDataDir }) {
+it('should construct a new URL when a baseURL in browserType.launchPersistent is passed to page.goto', async function({ browserType, server, createUserDataDir }) {
   const userDataDir = await createUserDataDir();
-  const context = await browserType.launchPersistentContext(userDataDir, {
+  const context = (await browserType.launchPersistent(userDataDir, {
     baseURL: server.PREFIX,
-  });
+  })).defaultContext()!;
   const page = await context.newPage();
   expect((await page.goto('/empty.html'))!.url()).toBe(server.EMPTY_PAGE);
   await context.close();

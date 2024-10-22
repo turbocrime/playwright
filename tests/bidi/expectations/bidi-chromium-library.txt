@@ -42,7 +42,7 @@ library/browsercontext-add-init-script.spec.ts › should work without navigatio
 library/browsercontext-base-url.spec.ts › should be able to match a URL relative to its given URL with urlMatcher [fail]
 library/browsercontext-base-url.spec.ts › should construct a new URL when a baseURL in browser.newContext is passed to page.goto @smoke [pass]
 library/browsercontext-base-url.spec.ts › should construct a new URL when a baseURL in browser.newPage is passed to page.goto [pass]
-library/browsercontext-base-url.spec.ts › should construct a new URL when a baseURL in browserType.launchPersistentContext is passed to page.goto [fail]
+library/browsercontext-base-url.spec.ts › should construct a new URL when a baseURL in browserType.launchPersistent is passed to page.goto [fail]
 library/browsercontext-base-url.spec.ts › should construct the URLs correctly when a baseURL with a trailing slash in browser.newPage is passed to page.goto [pass]
 library/browsercontext-base-url.spec.ts › should construct the URLs correctly when a baseURL without a trailing slash in browser.newPage is passed to page.goto [pass]
 library/browsercontext-base-url.spec.ts › should not construct a new URL when valid URLs are passed [pass]

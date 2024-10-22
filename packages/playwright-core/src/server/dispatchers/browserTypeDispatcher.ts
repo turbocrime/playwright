@@ -36,9 +36,10 @@ export class BrowserTypeDispatcher extends Dispatcher<BrowserType, channels.Brow
     return { browser: new BrowserDispatcher(this, browser) };
   }
 
-  async launchPersistentContext(params: channels.BrowserTypeLaunchPersistentContextParams, metadata: CallMetadata): Promise<channels.BrowserTypeLaunchPersistentContextResult> {
-    const browserContext = await this._object.launchPersistentContext(metadata, params.userDataDir, params);
-    return { context: new BrowserContextDispatcher(this, browserContext) };
+  async launchPersistent(params: channels.BrowserTypeLaunchPersistentParams, metadata: CallMetadata): Promise<channels.BrowserTypeLaunchPersistentResult> {
+    const browser = await this._object.launchPersistent(metadata, params.userDataDir, params);
+    const browserDispatcher = new BrowserDispatcher(this, browser);
+    return { browser: browserDispatcher, defaultContext: browser._defaultContext ? new BrowserContextDispatcher(browserDispatcher, browser._defaultContext) : undefined };
   }
 
   async connectOverCDP(params: channels.BrowserTypeConnectOverCDPParams, metadata: CallMetadata): Promise<channels.BrowserTypeConnectOverCDPResult> {

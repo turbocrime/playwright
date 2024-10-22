@@ -165,12 +165,12 @@ playwrightTest('should close service worker together with the context', async ({
 });
 
 playwrightTest('should pass args with spaces', async ({ browserType, createUserDataDir }, testInfo) => {
-  const browser = await browserType.launchPersistentContext(await createUserDataDir(), {
+  const context = (await browserType.launchPersistent(await createUserDataDir(), {
     args: ['--user-agent=I am Foo']
-  });
-  const page = await browser.newPage();
+  })).defaultContext()!;
+  const page = await context.newPage();
   const userAgent = await page.evaluate(() => navigator.userAgent);
-  await browser.close();
+  await context.close();
   expect(userAgent).toBe('I am Foo');
 });
 

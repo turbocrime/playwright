@@ -29,6 +29,7 @@ import { Artifact } from './artifact';
 import { mkdirIfNeeded } from '../utils';
 
 export class Browser extends ChannelOwner<channels.BrowserChannel> implements api.Browser {
+  _defaultContext: BrowserContext | null = null;
   readonly _contexts = new Set<BrowserContext>();
   private _isConnected = true;
   private _closedPromise: Promise<void>;
@@ -90,6 +91,10 @@ export class Browser extends ChannelOwner<channels.BrowserChannel> implements ap
 
   contexts(): BrowserContext[] {
     return [...this._contexts];
+  }
+
+  defaultContext(): BrowserContext | null {
+    return this._defaultContext;
   }
 
   version(): string {

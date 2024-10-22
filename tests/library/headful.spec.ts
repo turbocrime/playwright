@@ -20,16 +20,16 @@ import { expect, playwrightTest as it } from '../config/browserTest';
 
 it.use({ headless: false });
 
-it('should have default url when launching browser @smoke', async ({ launchPersistent }) => {
-  const { context } = await launchPersistent();
+it('should have default url when launching browser @smoke', async ({ createPersistent }) => {
+  const { context } = await createPersistent();
   const urls = context.pages().map(page => page.url());
   expect(urls).toEqual(['about:blank']);
 });
 
-it('should close browser with beforeunload page', async ({ launchPersistent, server }) => {
+it('should close browser with beforeunload page', async ({ createPersistent, server }) => {
   it.slow();
 
-  const { context } = await launchPersistent();
+  const { context } = await createPersistent();
   const page = await context.newPage();
   await page.goto(server.PREFIX + '/beforeunload.html');
   // We have to interact with a page so that 'beforeunload' handlers
@@ -229,7 +229,7 @@ it('Page.bringToFront should work', async ({ browser }) => {
   await page2.close();
 });
 
-it('should click in OOPIF', async ({ browserName, launchPersistent, server }) => {
+it('should click in OOPIF', async ({ browserName, createPersistent, server }) => {
   server.setRoute('/empty.html', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(`<iframe src="${server.CROSS_PROCESS_PREFIX}/iframe.html"></iframe>`);
@@ -240,7 +240,7 @@ it('should click in OOPIF', async ({ browserName, launchPersistent, server }) =>
     <script>console.log('frame loaded')</script>`);
   });
 
-  const { page } = await launchPersistent();
+  const { page } = await createPersistent();
   const consoleLog: string[] = [];
   page.on('console', m => consoleLog.push(m.text()));
   await page.goto(server.EMPTY_PAGE);
@@ -248,7 +248,7 @@ it('should click in OOPIF', async ({ browserName, launchPersistent, server }) =>
   expect(consoleLog).toContain('ok');
 });
 
-it('should click bottom row w/ infobar in OOPIF', async ({ browserName, launchPersistent, server, isWindows }) => {
+it('should click bottom row w/ infobar in OOPIF', async ({ browserName, createPersistent, server, isWindows }) => {
   it.fixme(browserName === 'chromium' && isWindows, 'Click is offset by the infobar height');
 
   server.setRoute('/empty.html', (req, res) => {
@@ -272,7 +272,7 @@ it('should click bottom row w/ infobar in OOPIF', async ({ browserName, launchPe
       <button id="button" onclick="console.log('ok')">Submit</button>`);
   });
 
-  const { page } = await launchPersistent();
+  const { page } = await createPersistent();
   await page.goto(server.EMPTY_PAGE);
   // Chrome bug! Investigate what's happening in the oopif router.
   const consoleLog: string[] = [];

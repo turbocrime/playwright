@@ -17,7 +17,6 @@
 import fs from 'fs';
 import * as os from 'os';
 import path from 'path';
-import type { BrowserContext } from './browserContext';
 import { normalizeProxySettings, validateBrowserContextOptions } from './browserContext';
 import type { BrowserName } from './registry';
 import { registry } from './registry';
@@ -30,7 +29,6 @@ import { PipeTransport } from './pipeTransport';
 import type { Progress } from './progress';
 import { ProgressController } from './progress';
 import type * as types from './types';
-import type * as channels from '@protocol/channels';
 import { DEFAULT_TIMEOUT, TimeoutSettings } from '../common/timeoutSettings';
 import { debugMode, ManualPromise } from '../utils';
 import { existsAsync } from '../utils/fileUtils';
@@ -93,7 +91,7 @@ export abstract class BrowserType extends SdkObject {
     return browser;
   }
 
-  async launchPersistentContext(metadata: CallMetadata, userDataDir: string, options: channels.BrowserTypeLaunchPersistentContextOptions & { useWebSocket?: boolean, internalIgnoreHTTPSErrors?: boolean }): Promise<BrowserContext> {
+  async launchPersistent(metadata: CallMetadata, userDataDir: string, options: types.LaunchPersistentOptions): Promise<Browser> {
     const launchOptions = this._validateLaunchOptions(options);
     if (this._useBidi)
       launchOptions.useWebSocket = true;
@@ -113,7 +111,7 @@ export abstract class BrowserType extends SdkObject {
       browser._defaultContext!._clientCertificatesProxy = clientCertificatesProxy;
       return browser;
     }, TimeoutSettings.launchTimeout(launchOptions));
-    return browser._defaultContext!;
+    return browser;
   }
 
   async _innerLaunchWithRetries(progress: Progress, options: types.LaunchOptions, persistent: types.BrowserContextOptions | undefined, protocolLogger: types.ProtocolLogger, userDataDir?: string): Promise<Browser> {
@@ -159,9 +157,8 @@ export abstract class BrowserType extends SdkObject {
     copyTestHooks(options, browserOptions);
     const browser = await this.connectToTransport(transport, browserOptions);
     (browser as any)._userDataDirForTest = userDataDir;
-    // We assume no control when using custom arguments, and do not prepare the default context in that case.
-    if (persistent && !options.ignoreAllDefaultArgs)
-      await browser._defaultContext!._loadDefaultContext(progress);
+    if (persistent)
+      await browser._defaultContext?._loadDefaultContext(progress);
     return browser;
   }
 
@@ -309,13 +306,13 @@ export abstract class BrowserType extends SdkObject {
   protected _createUserDataDirArgMisuseError(userDataDirArg: string): Error {
     switch (this.attribution.playwright.options.sdkLanguage) {
       case 'java':
-        return new Error(`Pass userDataDir parameter to 'BrowserType.launchPersistentContext(userDataDir, options)' instead of specifying '${userDataDirArg}' argument`);
+        return new Error(`Pass userDataDir parameter to 'BrowserType.launchPersistent(userDataDir, options)' instead of specifying '${userDataDirArg}' argument`);
       case 'python':
-        return new Error(`Pass user_data_dir parameter to 'browser_type.launch_persistent_context(user_data_dir, **kwargs)' instead of specifying '${userDataDirArg}' argument`);
+        return new Error(`Pass user_data_dir parameter to 'browser_type.launch_persistent(user_data_dir, **kwargs)' instead of specifying '${userDataDirArg}' argument`);
       case 'csharp':
-        return new Error(`Pass userDataDir parameter to 'BrowserType.LaunchPersistentContextAsync(userDataDir, options)' instead of specifying '${userDataDirArg}' argument`);
+        return new Error(`Pass userDataDir parameter to 'BrowserType.LaunchPersistentAsync(userDataDir, options)' instead of specifying '${userDataDirArg}' argument`);
       default:
-        return new Error(`Pass userDataDir parameter to 'browserType.launchPersistentContext(userDataDir, options)' instead of specifying '${userDataDirArg}' argument`);
+        return new Error(`Pass userDataDir parameter to 'browserType.launchPersistent(userDataDir, options)' instead of specifying '${userDataDirArg}' argument`);
     }
   }
 
